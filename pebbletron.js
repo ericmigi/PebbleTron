@@ -26,11 +26,12 @@ var lockList = [];
 // menu setup functions
 
 var loadState = function() {
-  var savedLockList = localStorage.getItem('lockList');
+  console.log('Loading State!');              
+  var savedLockList = localStorage["lockList"];
   if (savedLockList !== null) {
     lockList = savedLockList;
   }
-  var savedLockId = localStorage.getItem('lockId');
+  var savedLockId = localStorage["lockId"];
   if (savedLockId !== null) {
     lockId = savedLockId;
     updateLockIndex();
@@ -46,9 +47,14 @@ var updateList = function() {
 };
 
 var saveState = function() {
-  localStorage.setItem('lockList', lockList);
-  localStorage.setItem('lockId', lockList[lockIndex].id);
+  localStorage["lockList"] = lockList;
+  localStorage["lockId"] = lockList[lockIndex].id;
 };  
+
+var deleteState = function() {
+  localStorage["locklist"] = null;
+  localStorage["lockId"] = null;
+};
 
 var updateLockIndex = function() {
   for ( var i = 0, ii = lockList.length; i < ii; ++i ) {
@@ -62,6 +68,7 @@ var updateLockIndex = function() {
 
 // Control locks
 var requestLocks = function() {
+  console.log('requesting locks!');
   var url = lockitronUrl + "?" + accessToken;
   simply.setText({ subtitle: 'Refreshing...'}, true);
 
@@ -72,6 +79,7 @@ var requestLocks = function() {
         name: data[i].lock.name,
         id: data[i].lock.id,
       };
+    console.log("lock name: " + lockList[i].name + " lock id: " + lockList[i].id);
     }
     saveState();
     updateLockIndex();
@@ -106,7 +114,7 @@ simply.on('singleClick', function(e) {
 );
 
 simply.on('longClick', function(e) {
-  console.log(util2.format('single clicked $button!', e));
+  console.log(util2.format('single long clicked $button!', e));
   
   if (e.button === 'down') {
     controlLock( lockList[lockIndex], 'lock');
@@ -125,3 +133,4 @@ loadState();
 requestLocks();
 
 simply.begin();
+console.log('Simply begun');
