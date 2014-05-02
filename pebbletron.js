@@ -6,7 +6,6 @@ var myfirstwebview = function(){
 
 Pebble.addEventListener('showConfiguration', myfirstwebview); 
 
-
 var accessToken = localStorage["accessToken"];
 
 Pebble.addEventListener("webviewclosed",
@@ -19,35 +18,24 @@ Pebble.addEventListener("webviewclosed",
 );
  
 
-
-simply.on('accelTap', function(e) {
-  console.log(util2.format('tapped accel axis $axis $direction!', e));
-  simply.setText({
-    subtitle: 'Tapped ' + (e.direction > 0 ? '+' : '-') + e.axis + '!',
-  });
-});
-
 var lockitronUrl = 'https://api.lockitron.com/v1/locks';
-
 var lockIndex = 0;
-
 var lockId = '';
-
 var lockList = [];
 
-var updateLockIndex = function() {
-  for ( var i = 0, ii = lockList.length; i < ii; ++i ) {
-    if (lockList[i].id === lockId) {
-      lockIndex = i;
-      return;
-    }
+// menu setup functions
+
+var loadState = function() {
+  var savedLockList = localStorage.getItem('lockList');
+  if (savedLockList !== null) {
+    lockList = savedLockList;
+  }
+  var savedLockId = localStorage.getItem('lockId');
+  if (savedLockId !== null) {
+    lockId = savedLockId;
+    updateLockIndex();
   }
 };
-                
-var saveState = function() {
-  localStorage.setItem('lockList', lockList);
-  localStorage.setItem('lockId', lockList[lockIndex].id);
-};                
 
 var updateList = function() {
   var textList = [];
@@ -57,6 +45,22 @@ var updateList = function() {
   simply.setText({ body: textList.join('\n') }, true);
 };
 
+var saveState = function() {
+  localStorage.setItem('lockList', lockList);
+  localStorage.setItem('lockId', lockList[lockIndex].id);
+};  
+
+var updateLockIndex = function() {
+  for ( var i = 0, ii = lockList.length; i < ii; ++i ) {
+    if (lockList[i].id === lockId) {
+      lockIndex = i;
+      return;
+    }
+  }
+};
+
+
+// Control locks
 var requestLocks = function() {
   var url = lockitronUrl + "?" + accessToken;
   simply.setText({ subtitle: 'Refreshing...'}, true);
@@ -83,38 +87,9 @@ var controlLock = function(lock, action) {
   });
 };
 
+   
 
-
-
-simply.on('longClick', function(e) {
-  console.log(util2.format('single clicked $button!', e));
-  
-  if (e.button === 'down') {
-    controlLock( lockList[lockIndex], 'lock');
-  }
-  if (e.button === 'up') {
-    controlLock( lockList[lockIndex], 'unlock');
-    
-  }  
-});
-
-
-
-
-
-var loadState = function() {
-  var savedLockList = localStorage.getItem('lockList');
-  if (savedLockList !== null) {
-    lockList = savedLockList;
-  }
-  var savedLockId = localStorage.getItem('lockId');
-  if (savedLockId !== null) {
-    lockId = savedLockId;
-    updateLockIndex();
-  }
-};
-
-
+// Simply.js functions
 
 simply.on('singleClick', function(e) {
   if (e.button === 'up') {
@@ -129,6 +104,20 @@ simply.on('singleClick', function(e) {
   
 }
 );
+
+simply.on('longClick', function(e) {
+  console.log(util2.format('single clicked $button!', e));
+  
+  if (e.button === 'down') {
+    controlLock( lockList[lockIndex], 'lock');
+  }
+  if (e.button === 'up') {
+    controlLock( lockList[lockIndex], 'unlock');
+    
+  }  
+});
+
+
 // POST to Lockitron API
 // ajax({ url: url, type: 'json', method: 'post'}, success, failure)
 
