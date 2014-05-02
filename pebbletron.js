@@ -18,7 +18,7 @@ Pebble.addEventListener("webviewclosed",
 );
  
 
-var lockitronUrl = 'https://api.lockitron.com/v1/locks';
+var lockitronUrl = 'https://api.lockitron.com/v2/locks';
 var lockIndex = 0;
 var lockId = '';
 var lockList = [];
@@ -26,12 +26,11 @@ var lockList = [];
 // menu setup functions
 
 var loadState = function() {
-  console.log('Loading State!');              
-  var savedLockList = localStorage["lockList"];
+  var savedLockList = localStorage.getItem('lockList');
   if (savedLockList !== null) {
     lockList = savedLockList;
   }
-  var savedLockId = localStorage["lockId"];
+  var savedLockId = localStorage.getItem('lockId');
   if (savedLockId !== null) {
     lockId = savedLockId;
     updateLockIndex();
@@ -47,14 +46,9 @@ var updateList = function() {
 };
 
 var saveState = function() {
-  localStorage["lockList"] = lockList;
-  localStorage["lockId"] = lockList[lockIndex].id;
+  localStorage.setItem('lockList', lockList);
+  localStorage.setItem('lockId', lockList[lockIndex].id);
 };  
-
-var deleteState = function() {
-  localStorage["locklist"] = null;
-  localStorage["lockId"] = null;
-};
 
 var updateLockIndex = function() {
   for ( var i = 0, ii = lockList.length; i < ii; ++i ) {
@@ -68,18 +62,16 @@ var updateLockIndex = function() {
 
 // Control locks
 var requestLocks = function() {
-  console.log('requesting locks!');
   var url = lockitronUrl + "?" + accessToken;
   simply.setText({ subtitle: 'Refreshing...'}, true);
 
-  ajax({ url: url, type: 'json', method: 'post'}, function(data) {
+  ajax({ url: url, type: 'json', method: 'get'}, function(data) {
     lockList = [];
     for (var i = 0, ii = data.length; i < ii; ++i) {
       lockList[i] = {
-        name: data[i].lock.name,
-        id: data[i].lock.id,
+        name: data[i].name,
+        id: data[i].id,
       };
-    console.log("lock name: " + lockList[i].name + " lock id: " + lockList[i].id);
     }
     saveState();
     updateLockIndex();
@@ -88,9 +80,9 @@ var requestLocks = function() {
 };
 
 var controlLock = function(lock, action) {
-  var url = lockitronUrl + '/' + lock.id + '/' + action + '?' + accessToken;
+  var url = lockitronUrl + '/' + lock.id + '?' + accessToken + "&state=" + action;
   simply.setText({ subtitle: 'Refreshing...'}, true);
-  ajax({ url: url, type: 'json', method: 'post'}, function(data) {
+  ajax({ url: url, type: 'json', method: 'put'}, function(data) {
     simply.setText( { subtitle: lock.name+ " " + action + 'ed'});
   });
 };
@@ -114,7 +106,7 @@ simply.on('singleClick', function(e) {
 );
 
 simply.on('longClick', function(e) {
-  console.log(util2.format('single long clicked $button!', e));
+  console.log(util2.format('single clicked $button!', e));
   
   if (e.button === 'down') {
     controlLock( lockList[lockIndex], 'lock');
@@ -133,4 +125,3 @@ loadState();
 requestLocks();
 
 simply.begin();
-console.log('Simply begun');
