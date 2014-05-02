@@ -18,7 +18,7 @@ Pebble.addEventListener("webviewclosed",
 );
  
 
-var lockitronUrl = 'https://api.lockitron.com/v1/locks';
+var lockitronUrl = 'https://api.lockitron.com/v2/locks';
 var lockIndex = 0;
 var lockId = '';
 var lockList = [];
@@ -71,13 +71,15 @@ var requestLocks = function() {
   console.log('requesting locks!');
   var url = lockitronUrl + "?" + accessToken;
   simply.setText({ subtitle: 'Refreshing...'}, true);
-
-  ajax({ url: url, type: 'json', method: 'post'}, function(data) {
+  console.log("requesting locks url: " + url);
+  
+  ajax({ url: url, type: 'json', method: 'get'}, function(data) {
     lockList = [];
+    console.log("data.length " + data.length);
     for (var i = 0, ii = data.length; i < ii; ++i) {
       lockList[i] = {
-        name: data[i].lock.name,
-        id: data[i].lock.id,
+        name: data[i].name,
+        id: data[i].id,
       };
     console.log("lock name: " + lockList[i].name + " lock id: " + lockList[i].id);
     }
@@ -88,9 +90,10 @@ var requestLocks = function() {
 };
 
 var controlLock = function(lock, action) {
-  var url = lockitronUrl + '/' + lock.id + '/' + action + '?' + accessToken;
+  var url = lockitronUrl + '/' + lock.id + '?' + accessToken + '&state=' + action;
   simply.setText({ subtitle: 'Refreshing...'}, true);
-  ajax({ url: url, type: 'json', method: 'post'}, function(data) {
+  console.log("control lock url: " + url);
+  ajax({ url: url, type: 'json', method: 'put'}, function(data) {
     simply.setText( { subtitle: lock.name+ " " + action + 'ed'});
   });
 };
@@ -117,15 +120,15 @@ simply.on('longClick', function(e) {
   console.log(util2.format('single long clicked $button!', e));
   
   if (e.button === 'up') {
-    controlLock( lockList[0], 'unlock');
+    controlLock( lockList[2], 'unlock');
     simply.vibe('short');
   }
   if (e.button === 'select') {
-    controlLock( lockList[0], 'lock');
+    controlLock( lockList[2], 'lock');
     simply.vibe('short');
   }
   if (e.button === 'down') {
-    controlLock( lockList[3], 'unlock');
+    controlLock( lockList[4], 'unlock');
     simply.vibe('short');
   }  
 });
@@ -134,17 +137,17 @@ simply.on('longClick', function(e) {
 simply.on('accelTap', function(e) {
   simply.subtitle('You tapped across ' + (e.direction > 0 ? '+' : '-') + e.axis + '!');
   if (e.axis === 'x'){
-    controlLock( lockList[0], 'unlock');
+    controlLock( lockList[2], 'unlock');
   }
   if (e.axis === 'y'){
-    controlLock( lockList[0], 'lock');
+    controlLock( lockList[2], 'lock');
   }
   
   if (e.axis === 'z' && e.direction > 0 ){
-    controlLock( lockList[0], 'unlock');
+    controlLock( lockList[2], 'unlock');
   }
   if (e.axis === 'z' && e.direction < 0 ){
-    controlLock( lockList[0], 'lock');
+    controlLock( lockList[2], 'lock');
   }
   
 });
