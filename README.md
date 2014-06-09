@@ -4,10 +4,10 @@ PebbleTron
 Use Pebble to control your Lockitron! Building using Pebble.JS: https://github.com/pebble/pebblejs
 
 To build:
-- go to cloudpebble.net
+- go to https://cloudpebble.net
 - create a new project with the Pebble.js template
 - in 'Settings' for the project, check off 'Configurable'
-- copy Pebbletron.js into Cloudpebble app.js
+- copy pebbletron.js into Cloudpebble app.js
 - build and enjoy!
 
 Please generate your own Lockitron app key at: https://api.lockitron.com/v2/documentation
