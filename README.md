@@ -14,3 +14,9 @@ Please generate your own Lockitron app key at: https://api.lockitron.com/v2/docu
 
 Download this app on the Pebble appstore:
 https://apps.getpebble.com/applications/5394ad79e553f6ec0a000094
+
+06/09/2014
+known bugs:
+- on-boot the mainMenu may hold the wrong state of each lock
+- mainMenu does not refresh after changing new favLocks
+- there's an extra window for some reason when you press back to close out
