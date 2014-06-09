@@ -83,6 +83,22 @@ var requestLocks = function() {
   );
 };
 
+https://api.lockitron.com/v2/locks/:id
+
+var requestFavLocksState = function() {
+  console.log('requesting favLocks states!');
+  
+  for (var i = 0, ii = favLocks.length; i < ii; ++i) {
+    var url = lockitronUrl + '/' + favLocks[i].id + "?" + accessToken;
+    ajax({ url: url, type: 'json', method: 'get'}, function(data) {
+      favLocks[i].state = data.state;
+      console.log("lock name: " + data.name + " lock id: " + data.id);
+    }
+  );
+  }
+
+};
+
 // Control locks
 var controlLock = function(lock, action, menu, numberInList) {
   var url = lockitronUrl + '/' + lock.id + '?' + accessToken + '&state=' + action;
